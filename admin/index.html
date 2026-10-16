@@ -9,27 +9,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
+/* Layout: one column of working panels; the word-list editor is the widest, densest panel */
 :root {
   --bg: #eef2f6; --surface: #f8fafc; --ink: #18253d; --muted: #5d6b82; --rim: #1f3f73;
-  --line: #c3cddb; --hit: #2e8452; --near: #c9951a; --bad: #b3261e; --on-state: #fff;
+  --line: #c3cddb; --soft: #e3e9f1; --hit: #2e8452; --near: #c9951a; --bad: #b3261e; --on-state: #fff;
   --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #111a2b; --surface: #18233a; --ink: #e7edf6; --muted: #9aa8bf; --rim: #7da2e0;
-    --line: #34425e; --hit: #3a9a63; --near: #d3a22c; --bad: #f2877f; color-scheme: dark;
+    --line: #34425e; --soft: #212d47; --hit: #3a9a63; --near: #d3a22c; --bad: #f2877f; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #111a2b; --surface: #18233a; --ink: #e7edf6; --muted: #9aa8bf; --rim: #7da2e0;
-  --line: #34425e; --hit: #3a9a63; --near: #d3a22c; --bad: #f2877f; color-scheme: dark;
+  --line: #34425e; --soft: #212d47; --hit: #3a9a63; --near: #d3a22c; --bad: #f2877f; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--font-body); }
 main {
-  max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px;
-  padding-block: 20px 40px;
+  max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px;
+  padding-block: 20px 120px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -37,37 +38,101 @@ header { display: flex; align-items: baseline; justify-content: space-between; g
 h1 { margin: 0; font: 800 1.8rem/1 var(--font-display); letter-spacing: -0.02em; color: var(--rim); }
 h1 span { font: 700 0.72rem var(--font-body); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-left: 8px; }
 a { color: var(--rim); font-weight: 700; }
-section { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-h2 { margin: 0; font: 800 1.15rem var(--font-display); color: var(--rim); }
+section { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+h2 { margin: 0; font: 800 1.2rem var(--font-display); color: var(--rim); }
+h3 { margin: 0; font: 700 0.75rem var(--font-body); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
 label { font-weight: 700; display: block; margin-bottom: 4px; }
-input, select, button { font: inherit; }
-input, select {
-  width: 100%; min-height: 46px; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--line);
+input, select, button, textarea { font: inherit; }
+input[type="text"], input[type="password"], input[type="number"], input[type="search"], select, textarea {
+  width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--line);
   background: var(--bg); color: var(--ink);
 }
-input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
-#word { text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; }
+textarea { min-height: 110px; resize: vertical; }
+input:focus-visible, select:focus-visible, button:focus-visible, textarea:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
+.wordbox { text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
-.row > * { flex: 1 1 140px; min-width: 0; }
+.row > * { flex: 1 1 160px; min-width: 0; }
 .row > .fixed { flex: 0 0 auto; }
-.btn { min-height: 46px; padding: 8px 16px; border-radius: 10px; border: 2px solid var(--rim); background: var(--surface); color: var(--rim); font-weight: 700; cursor: pointer; }
+.btn { min-height: 44px; padding: 8px 16px; border-radius: 10px; border: 2px solid var(--rim); background: var(--surface); color: var(--rim); font-weight: 700; cursor: pointer; }
 .btn.primary { background: var(--rim); color: var(--surface); }
 .btn.danger { border-color: var(--bad); color: var(--bad); }
-.btn:disabled { opacity: 0.5; cursor: default; }
-.hint { margin: 0; color: var(--muted); font-size: 0.92rem; min-height: 1.4em; }
-.hint.err { color: var(--bad); font-weight: 700; }
-.hint.ok { color: var(--hit); font-weight: 700; }
-.tiles { display: flex; gap: 6px; }
+.btn.small { min-height: 34px; padding: 4px 10px; font-size: 0.88rem; border-radius: 8px; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.hint { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.msg { margin: 0; font-size: 0.92rem; min-height: 1.4em; color: var(--muted); }
+.msg.err { color: var(--bad); font-weight: 700; }
+.msg.ok { color: var(--hit); font-weight: 700; }
+.tiles { display: flex; gap: 6px; flex-wrap: wrap; }
 .tile {
-  width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center;
-  font: 800 1.5rem var(--font-display); text-transform: uppercase; background: var(--hit); color: var(--on-state);
+  width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center;
+  font: 800 1.45rem var(--font-display); text-transform: uppercase; background: var(--hit); color: var(--on-state);
 }
 .tile.daily { background: var(--near); }
-.stat { display: flex; flex-direction: column; gap: 10px; }
+.big { margin: 0; font: 800 1.35rem var(--font-display); font-variant-numeric: tabular-nums; }
+.stat { display: flex; flex-direction: column; gap: 8px; }
 .stat p { margin: 0; }
-.big { font: 800 1.4rem var(--font-display); font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: var(--hit); color: var(--on-state); vertical-align: middle; }
+.pill.muted { background: var(--soft); color: var(--muted); }
+
+/* List tabs */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tab {
+  display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 12px; border-radius: 99px;
+  border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-weight: 700; cursor: pointer;
+}
+.tab[aria-selected="true"] { border-color: var(--rim); background: var(--rim); color: var(--surface); }
+.tab .n { font-weight: 400; font-variant-numeric: tabular-nums; opacity: 0.8; }
+
+/* Word table */
+.table { border: 2px solid var(--line); border-radius: 12px; overflow: hidden; }
+.thead, .wrow { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 10px; }
+.thead { background: var(--soft); font: 700 0.72rem var(--font-body); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.rows { max-height: 460px; overflow-y: auto; }
+.wrow { border-top: 1px solid var(--line); }
+.wrow:first-child { border-top: 0; }
+.wrow .w { font: 800 1rem var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; }
+.wrow input { min-height: 36px; padding: 4px 10px; border-radius: 8px; font-size: 0.92rem; }
+.wrow .acts { display: flex; gap: 6px; }
+.wrow.added .w { color: var(--hit); }
+.addrow { background: var(--soft); border-top: 0; }
+.empty { padding: 18px; color: var(--muted); text-align: center; }
+@media (max-width: 560px) {
+  .thead { display: none; }
+  .wrow { grid-template-columns: 1fr auto; }
+  .wrow input { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* Unsaved-changes bar */
+.savebar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  background: var(--ink); color: var(--bg);
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.savebar .inner { max-width: 780px; margin: 0 auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.savebar p { margin: 0; flex: 1 1 200px; font-weight: 700; }
+.savebar .btn { border-color: var(--bg); background: transparent; color: var(--bg); }
+.savebar .btn.primary { background: var(--bg); color: var(--ink); }
+.savebar.flash { animation: flash 0.6s; }
+@keyframes flash { 50% { background: var(--bad); } }
+
+/* Specials */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.card { border: 2px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--bg); }
+.card b { font-family: var(--font-display); font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.card .row { margin-top: auto; }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+details > summary { cursor: pointer; font-weight: 700; color: var(--rim); list-style: none; display: flex; align-items: center; gap: 8px; }
+details > summary::before { content: "+"; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--rim); font-size: 0.9rem; }
+details[open] > summary::before { content: "−"; }
+details > div { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.found { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 12px; max-height: 320px; overflow-y: auto; border: 2px solid var(--line); border-radius: 10px; padding: 10px; }
+.found label { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 0; cursor: pointer; }
+.found label b { letter-spacing: 0.08em; }
+.found label small { color: var(--muted); font-variant-numeric: tabular-nums; }
+.found input { width: 18px; height: 18px; accent-color: var(--rim); }
 [hidden] { display: none !important; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
@@ -86,7 +151,7 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px s
       </div>
       <button class="btn primary fixed" type="submit" id="loginBtn">Sign in</button>
     </form>
-    <p class="hint" id="loginMsg" role="status"></p>
+    <p class="msg" id="loginMsg" role="status"></p>
   </section>
 
   <div id="panel" hidden style="display:contents">
@@ -96,73 +161,146 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px s
       <button class="btn danger" id="clearBtn" hidden>End early and go back to the daily word</button>
     </section>
 
-    <section>
+    <section id="setSection">
       <h2>Set a shared word</h2>
-      <p class="hint">Everyone who opens Speckle gets this word, starting now. A player partway through another word finishes that one first.</p>
-      <form id="setForm" autocomplete="off">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="row">
-            <div>
-              <label for="word">Word</label>
-              <input id="word" list="answers" maxlength="5" spellcheck="false" autocapitalize="off" placeholder="five letters" required>
-              <datalist id="answers"></datalist>
-            </div>
-            <button class="btn fixed" type="button" id="randomBtn">Pick one at random</button>
+      <p class="hint">Everyone who opens Speckle gets this word, starting now. A player partway through another word finishes that one first. Tip: press <b>Use</b> next to any word in the lists below.</p>
+      <form id="setForm" autocomplete="off" style="display:flex;flex-direction:column;gap:14px">
+        <div class="row">
+          <div>
+            <label for="word">Word</label>
+            <input id="word" type="text" class="wordbox" maxlength="5" spellcheck="false" autocapitalize="off" placeholder="five letters" required>
           </div>
-          <p class="hint" id="wordHint" role="status">Type any word from the Speckle list, or choose from the suggestions.</p>
-          <div class="row">
-            <div>
-              <label for="period">How long</label>
-              <select id="period">
-                <option value="0.25">15 minutes</option>
-                <option value="0.5">30 minutes</option>
-                <option value="1">1 hour</option>
-                <option value="2">2 hours</option>
-                <option value="5" selected>5 hours</option>
-                <option value="12">12 hours</option>
-                <option value="24">1 day (24 hours)</option>
-                <option value="48">2 days</option>
-                <option value="72">3 days</option>
-                <option value="168">1 week</option>
-                <option value="custom">Custom…</option>
-              </select>
-            </div>
-            <div id="customWrap" hidden>
-              <label for="custom">Hours</label>
-              <input id="custom" type="number" min="0.25" max="720" step="0.25" inputmode="decimal" value="3">
-            </div>
-          </div>
-          <p class="hint" id="endsHint"></p>
-          <button class="btn primary" type="submit" id="setBtn">Set shared word</button>
-          <p class="hint" id="setMsg" role="status"></p>
+          <button class="btn fixed" type="button" id="randomBtn">Random from loaded list</button>
         </div>
+        <p class="msg" id="wordHint" role="status">Type a word, or press Use next to one in the lists below.</p>
+        <div class="row">
+          <div>
+            <label for="period">How long</label>
+            <select id="period">
+              <option value="0.25">15 minutes</option>
+              <option value="0.5">30 minutes</option>
+              <option value="1">1 hour</option>
+              <option value="2">2 hours</option>
+              <option value="5" selected>5 hours</option>
+              <option value="12">12 hours</option>
+              <option value="24">1 day (24 hours)</option>
+              <option value="48">2 days</option>
+              <option value="72">3 days</option>
+              <option value="168">1 week</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <div id="customWrap" hidden>
+            <label for="custom">Hours</label>
+            <input id="custom" type="number" min="0.25" max="720" step="0.25" inputmode="decimal" value="3">
+          </div>
+        </div>
+        <p class="hint" id="endsHint"></p>
+        <button class="btn primary" type="submit" id="setBtn">Set shared word</button>
+        <p class="msg" id="setMsg" role="status"></p>
       </form>
     </section>
 
-    <section>
-      <h2>Otherwise</h2>
-      <p class="hint">When no shared word is active, everyone gets the daily word. It changes at midnight UK time.</p>
-      <div class="tiles" id="dailyTiles" aria-label="Today's daily word"></div>
+    <section id="listsSection">
+      <h2>Word lists</h2>
+      <p class="hint">The <b>loaded</b> list is where the daily word and practice words come from. Edits only reach players once you save.</p>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Word lists"></div>
+
+      <div id="specialMeta" class="row" hidden>
+        <div><label for="metaName">Name</label><input id="metaName" type="text" maxlength="60"></div>
+        <div><label for="metaDesc">Description</label><input id="metaDesc" type="text" maxlength="240"></div>
+      </div>
+
+      <div class="row">
+        <div><label for="search">Search this list</label><input id="search" type="search" placeholder="word or note"></div>
+        <button class="btn primary fixed" id="loadBtn" type="button">Load into game</button>
+        <button class="btn danger fixed" id="removeListBtn" type="button"></button>
+      </div>
+      <p class="msg" id="listMsg" role="status"></p>
+
+      <div class="table">
+        <div class="thead"><span>Word</span><span>Note shown after the game</span><span></span></div>
+        <form class="wrow addrow" id="addForm" autocomplete="off">
+          <input id="addWord" type="text" class="wordbox" maxlength="5" placeholder="new" aria-label="New word" spellcheck="false" autocapitalize="off">
+          <input id="addNote" type="text" maxlength="240" placeholder="Note (optional)" aria-label="Note for new word">
+          <div class="acts"><button class="btn small primary" type="submit">Add</button></div>
+        </form>
+        <div class="rows" id="rows"></div>
+      </div>
+    </section>
+
+    <section id="specialsSection">
+      <h2>Speckle Specials</h2>
+      <p class="hint">Themed word lists for special occasions. Add one, then load it into the game from Word lists.</p>
+
+      <h3>Ready-made</h3>
+      <div class="cards" id="readyCards"></div>
+
+      <details>
+        <summary>Upload or paste a list</summary>
+        <div>
+          <p class="hint">One word per line. Add a note after a comma if you like, for example <b>fagin, The receiver of stolen goods</b>. Words that aren't five letters are skipped. You can also upload a .txt or .csv file in the same format.</p>
+          <div class="row">
+            <div><label for="upName">Name</label><input id="upName" type="text" maxlength="60" placeholder="e.g. Christmas Special"></div>
+            <div><label for="upDesc">Description</label><input id="upDesc" type="text" maxlength="240" placeholder="optional"></div>
+          </div>
+          <div><label for="upFile">File</label><input id="upFile" type="file" accept=".txt,.csv,text/plain,text/csv"></div>
+          <div><label for="upText">Or paste here</label><textarea id="upText" spellcheck="false"></textarea></div>
+          <p class="msg" id="upMsg" role="status"></p>
+          <button class="btn primary" id="upBtn" type="button">Create special</button>
+        </div>
+      </details>
+
+      <details>
+        <summary>Generate from a book</summary>
+        <div>
+          <p class="hint">Upload the plain text of a book (Project Gutenberg's .txt downloads work well). Speckle finds the five-letter words it uses, and with <b>names only</b> it keeps words that only ever appear with a capital letter, which picks out characters and places. Tick the ones you want.</p>
+          <div class="row">
+            <div><label for="genName">Name</label><input id="genName" type="text" maxlength="60" placeholder="e.g. Austen Special"></div>
+            <div><label for="genDesc">Description</label><input id="genDesc" type="text" maxlength="240" placeholder="optional"></div>
+          </div>
+          <div><label for="genFile">Book text file</label><input id="genFile" type="file" accept=".txt,text/plain"></div>
+          <div><label for="genText">Or paste text</label><textarea id="genText" spellcheck="false"></textarea></div>
+          <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input id="genNames" type="checkbox" checked style="width:18px;height:18px;accent-color:var(--rim)"> Names only (characters and places)</label>
+          <button class="btn" id="genBtn" type="button">Find words</button>
+          <div id="genResults" hidden style="display:flex;flex-direction:column;gap:10px">
+            <div class="row">
+              <p class="hint" id="genCount" style="flex:1 1 200px"></p>
+              <button class="btn small fixed" type="button" id="genAll">Tick all</button>
+              <button class="btn small fixed" type="button" id="genNone">Untick all</button>
+            </div>
+            <div class="found" id="genFound"></div>
+          </div>
+          <p class="msg" id="genMsg" role="status"></p>
+          <button class="btn primary" id="genCreate" type="button" hidden>Create special</button>
+        </div>
+      </details>
     </section>
   </div>
 </main>
+
+<div class="savebar" id="savebar" hidden>
+  <div class="inner">
+    <p id="saveText">Unsaved changes</p>
+    <button class="btn" id="discardBtn" type="button">Discard</button>
+    <button class="btn primary" id="saveBtn" type="button">Save changes</button>
+  </div>
+</div>
 
 <script src="../words.js"></script>
 <script>
 const W = SPECKLE_WORDS;
 const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 let pw = "";
 try { pw = sessionStorage.getItem("speckle-admin-pw") || ""; } catch (e) {}
-const valid = new Set();
-for (let i = 0; i < W.valid.length; i += 5) valid.add(W.valid.slice(i, i + 5));
-const answers = Object.keys(W.answers).sort();
+const dictionary = new Set();
+for (let i = 0; i < W.valid.length; i += 5) dictionary.add(W.valid.slice(i, i + 5));
 
-$("answers").innerHTML = answers.map(w => `<option value="${w}">${W.answers[w] || ""}</option>`).join("");
-const tilesFor = (word, cls) => [...word].map(c => `<div class="tile ${cls || ""}">${c}</div>`).join("");
-$("dailyTiles").innerHTML = tilesFor(W.dailyShared().word, "daily");
+function say(id, text, cls) { const m = $(id); m.textContent = text; m.className = "msg " + (cls || ""); }
 
-async function api(method, body) {
-  const res = await fetch("/api/settings", {
+async function api(method, path, body) {
+  const res = await fetch(path, {
     method, cache: "no-store",
     headers: Object.assign({ Authorization: "Bearer " + pw }, body ? { "Content-Type": "application/json" } : {}),
     body: body ? JSON.stringify(body) : undefined,
@@ -171,75 +309,97 @@ async function api(method, body) {
   try { data = await res.json(); } catch (e) {}
   return { status: res.status, data };
 }
-
-function fmt(ms) {
-  return new Date(ms).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-}
+const fmt = ms => new Date(ms).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 function left(ms) {
   const m = Math.max(0, Math.round(ms / 60000));
   const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
   return [d && d + " d", (h || d) && h + " h", mm + " min"].filter(Boolean).join(" ");
 }
+const tilesFor = (word, cls) => [...word].map(c => `<div class="tile ${cls || ""}">${esc(c)}</div>`).join("");
 
-let current = null;
+/* ---------- Data ---------- */
+let current = null;   // shared word
+let lists = null;     // { version, active, main, specials }
+let selected = "main";
+let draft = null;     // { id, name, description, words } being edited
+let dirty = false;
+
+function listById(id) {
+  if (id === "main") return { id: "main", name: "Main list", description: "", words: lists.main ? lists.main.words : W.answers, edited: !!lists.main };
+  const s = lists.specials[id];
+  return s ? { id, name: s.name, description: s.description || "", words: s.words, edited: true } : null;
+}
+function loaded() { return listById(lists.active) || listById("main"); }
+function allWords() {
+  const set = new Set(dictionary);
+  Object.keys(listById("main").words).forEach(w => set.add(w));
+  Object.values(lists.specials).forEach(s => Object.keys(s.words).forEach(w => set.add(w)));
+  return set;
+}
+function noteFor(w) {
+  const l = loaded();
+  if (l.words[w]) return l.words[w];
+  for (const s of [listById("main"), ...Object.keys(lists.specials).map(listById)]) if (s.words[w]) return s.words[w];
+  return W.answers[w] || "";
+}
+
+/* ---------- Status ---------- */
 function renderStatus() {
-  const el = $("status");
+  const l = loaded();
+  const listLine = `<p class="hint">Loaded list: <b>${esc(l.name)}</b>, ${Object.keys(l.words).length} words.</p>`;
   if (current && current.active && current.end > Date.now()) {
-    el.innerHTML = `<div class="tiles">${tilesFor(current.word)}</div>
+    $("status").innerHTML = `<div class="tiles">${tilesFor(current.word)}</div>
       <p class="big">${left(current.end - Date.now())} left</p>
-      <p class="hint">Shared word since ${fmt(current.start)}. Ends ${fmt(current.end)}.</p>`;
+      <p class="hint">Shared word since ${fmt(current.start)}. Ends ${fmt(current.end)}.</p>${listLine}`;
     $("clearBtn").hidden = false;
   } else {
-    el.innerHTML = `<p class="big">No shared word is set</p><p class="hint">Players are getting the daily word.</p>`;
+    const d = W.dailyShared(null, l.words, l.id);
+    $("status").innerHTML = `<p class="big">No shared word is set</p>
+      <p class="hint">Everyone is getting today's daily word from the loaded list. It changes at midnight UK time.</p>
+      <div class="tiles">${tilesFor(d.word, "daily")}</div>${listLine}`;
     $("clearBtn").hidden = true;
   }
 }
-async function refresh() {
-  const r = await api("GET");
-  if (r.status === 200) { current = r.data; renderStatus(); }
-}
-setInterval(renderStatus, 30000);
+setInterval(() => { if (lists) renderStatus(); }, 30000);
 
-function showPanel() { $("login").hidden = true; $("panel").hidden = false; }
-
+/* ---------- Sign in ---------- */
 async function signIn(silent) {
   $("loginBtn").disabled = true;
-  let r;
-  try { r = await api("GET"); } catch (e) { r = { status: 0, data: {} }; }
+  let r, l;
+  try { [r, l] = await Promise.all([api("GET", "/api/settings"), api("GET", "/api/admin/lists")]); }
+  catch (e) { r = { status: 0, data: {} }; }
   $("loginBtn").disabled = false;
-  const msg = $("loginMsg");
-  if (r.status === 200) {
+  if (r.status === 200 && l.status === 200) {
     try { sessionStorage.setItem("speckle-admin-pw", pw); } catch (e) {}
-    current = r.data; renderStatus(); showPanel(); return;
+    current = r.data; lists = l.data;
+    $("login").hidden = true; $("panel").hidden = false;
+    renderStatus(); selectList(lists.active || "main"); loadReady();
+    return;
   }
   if (silent) return;
-  msg.className = "hint err";
-  if (r.status === 401) msg.textContent = "That password is not right.";
-  else if (r.status === 503) msg.textContent = "No admin password has been set yet. Add ADMIN_PASSWORD in the Netlify site's environment variables, then redeploy.";
-  else msg.textContent = "Could not reach the settings service. The admin area only works on the Netlify version of Speckle.";
+  if (r.status === 401) say("loginMsg", "That password is not right.", "err");
+  else if (r.status === 503) say("loginMsg", "No admin password has been set yet. Add ADMIN_PASSWORD in the Netlify site's environment variables, then redeploy.", "err");
+  else say("loginMsg", "Could not reach the settings service. The admin area only works on the Netlify version of Speckle.", "err");
 }
 $("loginForm").addEventListener("submit", e => { e.preventDefault(); pw = $("pw").value; signIn(false); });
 if (pw) signIn(true);
 
-/* Word picking */
+/* ---------- Shared word ---------- */
 function checkWord() {
   const w = $("word").value.trim().toLowerCase();
-  const hint = $("wordHint");
-  hint.className = "hint";
-  if (!w) { hint.textContent = "Type any word from the Speckle list, or choose from the suggestions."; return false; }
-  if (!/^[a-z]{5}$/.test(w)) { hint.textContent = "Needs exactly five letters."; return false; }
-  if (!valid.has(w)) { hint.className = "hint err"; hint.textContent = "That word is not in the Speckle word list."; return false; }
-  hint.className = "hint ok";
-  hint.textContent = W.answers[w] ? `In the list. ${W.answers[w]}` : "In the list.";
+  if (!w) { say("wordHint", "Type a word, or press Use next to one in the lists below."); return false; }
+  if (!/^[a-z]{5}$/.test(w)) { say("wordHint", "Needs exactly five letters."); return false; }
+  if (!allWords().has(w)) { say("wordHint", "That word isn't in the dictionary or any of your lists. Add it to a list first.", "err"); return false; }
+  const n = noteFor(w);
+  say("wordHint", n ? "Ready. " + n : "Ready.", "ok");
   return true;
 }
 $("word").addEventListener("input", checkWord);
 $("randomBtn").addEventListener("click", () => {
-  $("word").value = answers[Math.floor(Math.random() * answers.length)];
+  const ws = Object.keys(loaded().words);
+  $("word").value = ws[Math.floor(Math.random() * ws.length)];
   checkWord();
 });
-
-/* Length */
 function hours() { return $("period").value === "custom" ? Number($("custom").value) : Number($("period").value); }
 function updateEnds() {
   $("customWrap").hidden = $("period").value !== "custom";
@@ -250,28 +410,307 @@ $("period").addEventListener("change", updateEnds);
 $("custom").addEventListener("input", updateEnds);
 updateEnds(); setInterval(updateEnds, 30000);
 
-function say(text, cls) { const m = $("setMsg"); m.textContent = text; m.className = "hint " + (cls || ""); }
-
 $("setForm").addEventListener("submit", async e => {
   e.preventDefault();
-  if (!checkWord()) { say("Pick a word from the list first.", "err"); return; }
+  if (!checkWord()) { say("setMsg", "Choose a word first.", "err"); return; }
   const h = hours();
-  if (!(h >= 0.25 && h <= 720)) { say("Choose between 15 minutes and 720 hours.", "err"); return; }
+  if (!(h >= 0.25 && h <= 720)) { say("setMsg", "Choose between 15 minutes and 720 hours.", "err"); return; }
   $("setBtn").disabled = true;
-  const r = await api("POST", { word: $("word").value.trim().toLowerCase(), hours: h });
+  const r = await api("POST", "/api/settings", { word: $("word").value.trim().toLowerCase(), hours: h });
   $("setBtn").disabled = false;
-  if (r.status === 200) { say("Done. Everyone now gets " + r.data.word.toUpperCase() + ".", "ok"); current = r.data; renderStatus(); }
-  else if (r.status === 401) { say("Your session has expired. Reload the page and sign in again.", "err"); }
-  else say(r.data.error || "Something went wrong. Try again.", "err");
+  if (r.status === 200) { say("setMsg", "Done. Everyone now gets " + r.data.word.toUpperCase() + ".", "ok"); current = r.data; renderStatus(); }
+  else if (r.status === 401) say("setMsg", "Your session has expired. Reload the page and sign in again.", "err");
+  else say("setMsg", r.data.error || "Something went wrong. Try again.", "err");
 });
-
 $("clearBtn").addEventListener("click", async () => {
   $("clearBtn").disabled = true;
-  const r = await api("POST", { clear: true });
+  const r = await api("POST", "/api/settings", { clear: true });
   $("clearBtn").disabled = false;
-  if (r.status === 200) { current = r.data; renderStatus(); say("The shared word has ended. Players now get the daily word.", "ok"); }
-  else say(r.data.error || "Something went wrong. Try again.", "err");
+  if (r.status === 200) { current = r.data; renderStatus(); say("setMsg", "The shared word has ended. Players now get the daily word.", "ok"); }
+  else say("setMsg", r.data.error || "Something went wrong. Try again.", "err");
 });
+
+/* ---------- Word lists ---------- */
+function renderTabs() {
+  const ids = ["main", ...Object.keys(lists.specials).sort((a, b) => (lists.specials[a].created || 0) - (lists.specials[b].created || 0))];
+  $("tabs").innerHTML = ids.map(id => {
+    const l = listById(id);
+    const isLoaded = (lists.active || "main") === id;
+    return `<button class="tab" role="tab" type="button" data-id="${esc(id)}" aria-selected="${id === selected}">
+      ${esc(l.name)} <span class="n">${Object.keys(l.words).length}</span>${isLoaded ? ' <span class="pill">Loaded</span>' : ""}</button>`;
+  }).join("");
+}
+$("tabs").addEventListener("click", e => {
+  const t = e.target.closest(".tab");
+  if (!t || t.dataset.id === selected) return;
+  if (dirty) { flashSavebar(); return; }
+  selectList(t.dataset.id);
+});
+
+function selectList(id) {
+  if (!listById(id)) id = "main";
+  selected = id;
+  const l = listById(id);
+  draft = { id, name: l.name, description: l.description, words: Object.assign({}, l.words), added: new Set() };
+  setDirty(false);
+  $("search").value = "";
+  $("specialMeta").hidden = id === "main";
+  $("metaName").value = l.name; $("metaDesc").value = l.description;
+  say("listMsg", "");
+  renderTabs(); renderListButtons(); renderRows();
+}
+function renderListButtons() {
+  const isLoaded = (lists.active || "main") === selected;
+  $("loadBtn").disabled = isLoaded && !dirty;
+  $("loadBtn").textContent = isLoaded ? (dirty ? "Save changes" : "Loaded in game") : "Load into game";
+  const rb = $("removeListBtn");
+  rb.dataset.confirm = "";
+  if (selected === "main") {
+    rb.hidden = !listById("main").edited;
+    rb.textContent = "Reset to original";
+  } else { rb.hidden = false; rb.textContent = "Delete special"; }
+}
+
+function renderRows() {
+  const q = $("search").value.trim().toLowerCase();
+  const words = Object.keys(draft.words).sort();
+  const shown = words.filter(w => !q || w.includes(q) || draft.words[w].toLowerCase().includes(q));
+  $("rows").innerHTML = shown.length ? shown.map(w => `
+    <div class="wrow${draft.added.has(w) ? " added" : ""}" data-w="${w}">
+      <span class="w">${w}</span>
+      <input type="text" value="${esc(draft.words[w])}" maxlength="240" aria-label="Note for ${w}" placeholder="No note">
+      <div class="acts">
+        <button class="btn small" type="button" data-act="use">Use</button>
+        <button class="btn small danger" type="button" data-act="remove" aria-label="Remove ${w}">Remove</button>
+      </div>
+    </div>`).join("") : `<div class="empty">${q ? "No words match your search." : "This list is empty. Add a word above."}</div>`;
+}
+$("search").addEventListener("input", renderRows);
+$("rows").addEventListener("input", e => {
+  const row = e.target.closest(".wrow");
+  if (!row || e.target.tagName !== "INPUT") return;
+  draft.words[row.dataset.w] = e.target.value;
+  setDirty(true);
+});
+$("rows").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const w = b.closest(".wrow").dataset.w;
+  if (b.dataset.act === "use") {
+    $("word").value = w; checkWord();
+    $("setSection").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  } else if (b.dataset.act === "remove") {
+    delete draft.words[w]; draft.added.delete(w); setDirty(true); renderRows();
+    say("listMsg", `Removed ${w.toUpperCase()}. Save to keep the change.`);
+  }
+});
+$("addForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const w = $("addWord").value.trim().toLowerCase();
+  if (!/^[a-z]{5}$/.test(w)) { say("listMsg", "A word needs exactly five letters.", "err"); return; }
+  if (draft.words.hasOwnProperty(w)) { say("listMsg", `${w.toUpperCase()} is already in this list.`, "err"); return; }
+  draft.words[w] = $("addNote").value.trim();
+  draft.added.add(w);
+  $("addWord").value = ""; $("addNote").value = "";
+  setDirty(true); $("search").value = ""; renderRows();
+  say("listMsg", dictionary.has(w) ? `Added ${w.toUpperCase()}.` : `Added ${w.toUpperCase()}. It isn't a dictionary word, so players can guess it only while this list is loaded.`, "ok");
+  $("addWord").focus();
+});
+["metaName", "metaDesc"].forEach(id => $(id).addEventListener("input", () => setDirty(true)));
+
+function setDirty(v) {
+  dirty = v;
+  $("savebar").hidden = !v;
+  $("saveText").textContent = `Unsaved changes to ${draft ? draft.name : "this list"}`;
+  renderListButtons();
+}
+function flashSavebar() {
+  const b = $("savebar"); b.classList.remove("flash"); void b.offsetWidth; b.classList.add("flash");
+  $("saveText").textContent = "Save or discard your changes first";
+}
+$("discardBtn").addEventListener("click", () => selectList(selected));
+async function saveDraft() {
+  const name = $("metaName").value.trim();
+  if (selected !== "main" && !name) { say("listMsg", "Give the special a name.", "err"); return false; }
+  if (!Object.keys(draft.words).length) { say("listMsg", "A list needs at least one word.", "err"); return false; }
+  $("saveBtn").disabled = true;
+  const words = {};
+  Object.keys(draft.words).forEach(w => words[w] = draft.words[w].trim());
+  const r = await api("POST", "/api/admin/lists", { action: "save", id: selected, name, description: $("metaDesc").value.trim(), words });
+  $("saveBtn").disabled = false;
+  if (r.status !== 200) { say("listMsg", r.data.error || "Could not save. Try again.", "err"); return false; }
+  lists = r.data; selectList(selected); renderStatus();
+  say("listMsg", "Saved.", "ok");
+  return true;
+}
+$("saveBtn").addEventListener("click", saveDraft);
+
+$("loadBtn").addEventListener("click", async () => {
+  if (dirty && !(await saveDraft())) return;
+  if ((lists.active || "main") === selected) return;
+  const r = await api("POST", "/api/admin/lists", { action: "activate", id: selected });
+  if (r.status !== 200) { say("listMsg", r.data.error || "Could not load the list. Try again.", "err"); return; }
+  lists = r.data; selectList(selected); renderStatus();
+  say("listMsg", `${listById(selected).name} is now loaded. Players get its daily word within a minute.`, "ok");
+});
+
+$("removeListBtn").addEventListener("click", async () => {
+  const b = $("removeListBtn");
+  if (!b.dataset.confirm) {
+    b.dataset.confirm = "1";
+    b.textContent = selected === "main" ? "Press again to reset" : "Press again to delete";
+    setTimeout(() => { if (b.dataset.confirm) renderListButtons(); }, 4000);
+    return;
+  }
+  const action = selected === "main" ? { action: "resetMain" } : { action: "delete", id: selected };
+  const name = listById(selected).name;
+  const r = await api("POST", "/api/admin/lists", action);
+  if (r.status !== 200) { say("listMsg", r.data.error || "Something went wrong. Try again.", "err"); return; }
+  lists = r.data; selectList(selected === "main" ? "main" : (lists.active || "main")); renderStatus();
+  say("listMsg", action.action === "resetMain" ? "The main list is back to the original." : `Deleted ${name}.`, "ok");
+});
+
+/* ---------- Specials: create ---------- */
+async function createSpecial(name, description, words, msgId) {
+  const r = await api("POST", "/api/admin/lists", { action: "create", name, description, words });
+  if (r.status !== 200) { say(msgId, r.data.error || "Could not create the special. Try again.", "err"); return null; }
+  lists = r.data;
+  if (!dirty) selectList(r.data.created); else renderTabs();
+  return r.data.created;
+}
+
+/* Ready-made specials shipped with Speckle */
+let ready = [];
+async function loadReady() {
+  try { ready = await (await fetch("../specials/index.json", { cache: "no-store" })).json(); } catch (e) { ready = []; }
+  renderReady();
+}
+function renderReady() {
+  const have = new Set(Object.values(lists.specials).map(s => s.name.toLowerCase()));
+  $("readyCards").innerHTML = ready.length ? ready.map((r, i) => {
+    const added = have.has(r.name.toLowerCase());
+    return `<div class="card"><b>${esc(r.name)}</b><p>${esc(r.description)}</p><p>${r.count} words</p>
+      <div class="row">${added ? '<span class="pill muted fixed">Added</span>' :
+        `<button class="btn small" type="button" data-i="${i}" data-load="0">Add</button>
+         <button class="btn small primary" type="button" data-i="${i}" data-load="1">Add and load</button>`}</div></div>`;
+  }).join("") : '<p class="hint">No ready-made specials found.</p>';
+}
+$("readyCards").addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  b.disabled = true;
+  const r = ready[Number(b.dataset.i)];
+  let data;
+  try { data = await (await fetch("../specials/" + r.file, { cache: "no-store" })).json(); } catch (err) { data = null; }
+  if (!data) { b.disabled = false; return; }
+  const id = await createSpecial(data.name, data.description, data.words, "listMsg");
+  if (id && b.dataset.load === "1") {
+    const a = await api("POST", "/api/admin/lists", { action: "activate", id });
+    if (a.status === 200) { lists = a.data; selectList(id); renderStatus(); say("listMsg", `${data.name} is added and loaded. Players get its daily word within a minute.`, "ok"); }
+  } else if (id) say("listMsg", `${data.name} is added. Load it when you're ready.`, "ok");
+  renderReady();
+  $("listsSection").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+});
+
+/* Upload or paste */
+function parseList(text) {
+  const words = {}, skipped = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const m = line.match(/^["']?([A-Za-z]+)["']?\s*(?:[,\t;:|]|\s-\s)\s*["']?(.*?)["']?$/);
+    if (m) {
+      const w = m[1].toLowerCase();
+      if (/^[a-z]{5}$/.test(w)) words[w] = m[2].trim(); else skipped.push(m[1]);
+    } else {
+      for (const t of line.split(/[\s,;]+/)) {
+        const w = t.replace(/[^A-Za-z]/g, "").toLowerCase();
+        if (!w) continue;
+        if (/^[a-z]{5}$/.test(w)) { if (!(w in words)) words[w] = ""; } else skipped.push(t);
+      }
+    }
+  }
+  return { words, skipped };
+}
+$("upFile").addEventListener("change", async () => {
+  const f = $("upFile").files[0]; if (!f) return;
+  $("upText").value = await f.text();
+  const p = parseList($("upText").value);
+  say("upMsg", `${Object.keys(p.words).length} words found${p.skipped.length ? `, ${p.skipped.length} skipped` : ""}.`);
+});
+$("upText").addEventListener("input", () => {
+  const p = parseList($("upText").value);
+  say("upMsg", $("upText").value.trim() ? `${Object.keys(p.words).length} words found${p.skipped.length ? `, ${p.skipped.length} skipped (${p.skipped.slice(0, 5).join(", ")}${p.skipped.length > 5 ? "…" : ""})` : ""}.` : "");
+});
+$("upBtn").addEventListener("click", async () => {
+  const name = $("upName").value.trim();
+  const p = parseList($("upText").value);
+  if (!name) { say("upMsg", "Give the special a name.", "err"); return; }
+  if (!Object.keys(p.words).length) { say("upMsg", "No five-letter words found. Paste a list or choose a file.", "err"); return; }
+  $("upBtn").disabled = true;
+  const id = await createSpecial(name, $("upDesc").value.trim(), p.words, "upMsg");
+  $("upBtn").disabled = false;
+  if (id) {
+    say("upMsg", `Created ${name} with ${Object.keys(p.words).length} words. It's open in Word lists, ready to edit or load.`, "ok");
+    $("upName").value = $("upDesc").value = $("upText").value = ""; $("upFile").value = "";
+    renderReady();
+  }
+});
+
+/* Generate from a book's text */
+const NOT_NAMES = new Set(["april", "ebook", "email", "https", "index", "title", "roman", "latin", "greek", "dutch", "swiss", "italy", "spain", "james", "bible"]);
+let found = [];
+$("genFile").addEventListener("change", async () => {
+  const f = $("genFile").files[0]; if (!f) return;
+  $("genText").value = await f.text();
+  say("genMsg", `Loaded ${f.name}. Press Find words.`);
+});
+$("genBtn").addEventListener("click", () => {
+  const text = $("genText").value;
+  if (text.length < 200) { say("genMsg", "Upload or paste a longer piece of text first.", "err"); return; }
+  const namesOnly = $("genNames").checked;
+  const cap = new Map(), low = new Map();
+  for (const m of text.matchAll(/[A-Za-z]+/g)) {
+    const t = m[0];
+    if (t.length !== 5) continue;
+    const w = t.toLowerCase();
+    const isCap = t[0] !== w[0];
+    const map = isCap ? cap : low;
+    map.set(w, (map.get(w) || 0) + 1);
+  }
+  const all = new Set([...cap.keys(), ...low.keys()]);
+  found = [...all].map(w => ({ w, cap: cap.get(w) || 0, low: low.get(w) || 0 }))
+    .filter(x => namesOnly ? x.cap >= 3 && x.low <= x.cap * 0.02 && !NOT_NAMES.has(x.w) : x.cap + x.low >= 3)
+    .sort((a, b) => (b.cap + b.low) - (a.cap + a.low))
+    .slice(0, 400);
+  if (!found.length) { say("genMsg", "No suitable five-letter words found in that text.", "err"); $("genResults").hidden = true; $("genCreate").hidden = true; return; }
+  $("genFound").innerHTML = found.map((x, i) => `<label><input type="checkbox" data-i="${i}" ${namesOnly && i < 60 ? "checked" : ""}><b>${x.w.toUpperCase()}</b><small>${x.cap + x.low}×</small></label>`).join("");
+  $("genResults").hidden = false; $("genCreate").hidden = false;
+  updateGenCount();
+  say("genMsg", namesOnly ? "Ticked the 60 most frequent. Check them over: a few ordinary words can slip through." : "Tick the words you want.");
+});
+function updateGenCount() {
+  const n = $("genFound").querySelectorAll("input:checked").length;
+  $("genCount").textContent = `${found.length} words found, most frequent first. ${n} ticked.`;
+  $("genCreate").textContent = `Create special with ${n} words`;
+}
+$("genFound").addEventListener("change", updateGenCount);
+$("genAll").addEventListener("click", () => { $("genFound").querySelectorAll("input").forEach(c => c.checked = true); updateGenCount(); });
+$("genNone").addEventListener("click", () => { $("genFound").querySelectorAll("input").forEach(c => c.checked = false); updateGenCount(); });
+$("genCreate").addEventListener("click", async () => {
+  const name = $("genName").value.trim();
+  if (!name) { say("genMsg", "Give the special a name.", "err"); return; }
+  const words = {};
+  $("genFound").querySelectorAll("input:checked").forEach(c => words[found[Number(c.dataset.i)].w] = "");
+  if (!Object.keys(words).length) { say("genMsg", "Tick at least one word.", "err"); return; }
+  $("genCreate").disabled = true;
+  const id = await createSpecial(name, $("genDesc").value.trim(), words, "genMsg");
+  $("genCreate").disabled = false;
+  if (id) {
+    say("genMsg", `Created ${name} with ${Object.keys(words).length} words. Add notes to each word in Word lists, then load it.`, "ok");
+    renderReady();
+  }
+});
+
+window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 </script>
 </body>
 </html>

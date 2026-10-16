@@ -72,7 +72,7 @@ header {
   border-bottom: 2px solid var(--rim);
   padding-bottom: 8px;
 }
-.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 h1 {
   margin: 0;
   font-family: var(--font-display);
@@ -83,8 +83,8 @@ h1 {
   color: var(--rim);
 }
 .tag {
-  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .icons { display: flex; gap: 6px; }
 .icon-btn {
@@ -280,11 +280,11 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
 <script src="words.js"></script>
 <script>
 const VALID_RAW = SPECKLE_WORDS.valid;
-const ANSWERS = SPECKLE_WORDS.answers;
+let ANSWERS = SPECKLE_WORDS.answers;
 const ROWS = 5, COLS = 5;
 const VALID = new Set();
 for (let i = 0; i < VALID_RAW.length; i += 5) VALID.add(VALID_RAW.slice(i, i + 5));
-const ANSWER_LIST = Object.keys(ANSWERS);
+let ANSWER_LIST = Object.keys(ANSWERS);
 
 /* Speckle textures, drawn once */
 function speckTexture(rgb, alpha, size, count) {
@@ -312,10 +312,26 @@ saved.stats = saved.stats || { played: 0, won: 0, streak: 0, best: 0, dist: [0, 
 saved.recent = saved.recent || [];
 saved.played = saved.played || {};
 
+/* Word list: the main list, or a list the admin has loaded (an edited main list or a Speckle Special) */
+let LIST = { id: "main", name: null, version: null };
+function applyList(l) {
+  if (!l || !l.words || !Object.keys(l.words).length) {
+    LIST = { id: "main", name: null, version: null };
+    ANSWERS = SPECKLE_WORDS.answers;
+  } else {
+    LIST = { id: l.id, name: l.name, version: l.version };
+    ANSWERS = l.words;
+    for (const w of Object.keys(l.words)) VALID.add(w);   // special words are always valid guesses
+  }
+  ANSWER_LIST = Object.keys(ANSWERS);
+}
+function daily() { return SPECKLE_WORDS.dailyShared(null, ANSWERS, LIST.id); }
+if (saved.list && saved.list.version) applyList(saved.list);   // last known list, so the first screen is right
+
 /* State */
 let state;
 /* Everyone gets the same word: the admin's chosen word while it is active, otherwise the daily word. */
-let shared = SPECKLE_WORDS.dailyShared();
+let shared = daily();
 function freshState(sh) {
   return { answer: sh.word, key: sh.id, guesses: [], current: "", over: false, won: false, practice: false };
 }
@@ -333,23 +349,36 @@ async function fetchShared() {
     const timer = setTimeout(() => ctl.abort(), 3500);
     const res = await fetch("/api/settings", { cache: "no-store", signal: ctl.signal });
     clearTimeout(timer);
-    if (res.status === 404) return SPECKLE_WORDS.dailyShared();
+    if (res.status === 404) return daily();
     if (!res.ok) return undefined;
     const j = await res.json();
-    if (j && j.active && VALID.has(j.word)) return { id: j.id, word: j.word, end: j.end, kind: "admin" };
-    return SPECKLE_WORDS.dailyShared();
+    const version = j.list ? j.list.version : null;
+    if (version !== LIST.version) {
+      if (!version) { applyList(null); saved.list = null; save(saved); }
+      else {
+        const lr = await fetch("/api/list", { cache: "no-store" });
+        if (!lr.ok) return undefined;
+        const l = await lr.json();
+        applyList(l); saved.list = l; save(saved);
+      }
+    }
+    if (j && j.active && /^[a-z]{5}$/.test(j.word)) {
+      VALID.add(j.word);
+      return { id: j.id, word: j.word, end: j.end, kind: "admin" };
+    }
+    return daily();
   } catch (e) { return undefined; }
 }
 
 function updateTag() {
-  let text = "Five letters · five goes · British English";
-  if (state.practice) text = "Practice word · not counted";
+  let text = LIST.name ? LIST.name : "Five letters · five goes · British English";
+  if (state.practice) text = (LIST.name ? LIST.name + " · " : "") + "Practice word · not counted";
   else if (shared.kind === "admin" && state.key === shared.id) {
     const end = new Date(shared.end);
     const far = shared.end - Date.now() > 20 * 3600 * 1000;
     text = "Shared word · until " + (far ? end.toLocaleDateString([], { weekday: "short" }) + " " : "") +
       end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  } else if (state.key && state.key.startsWith("daily-")) text = "Today's word";
+  } else if (state.key && state.key.startsWith("daily-")) text = (LIST.name ? LIST.name + " · " : "") + "Today's word";
   document.querySelector(".tag").textContent = text;
 }
 
@@ -549,7 +578,7 @@ function openStats() {
     document.getElementById("statsTitle").textContent = state.won ? `Got it in ${state.guesses.length}` : "Not this time";
     document.getElementById("answerWord").innerHTML = [...state.answer]
       .map(ch => `<div class="tile ${state.won ? "hit" : "miss"}">${ch}</div>`).join("");
-    const gloss = ANSWERS[state.answer];
+    const gloss = ANSWERS[state.answer] || SPECKLE_WORDS.answers[state.answer];
     const gl = document.getElementById("gloss");
     gl.textContent = gloss || ""; gl.hidden = !gloss;
   } else {
@@ -598,7 +627,9 @@ document.addEventListener("keydown", e => {
 /* Start, keeping an unfinished game across reloads */
 function start(data) {
   const g = (data && data.game) || saved.game;
-  if (g && VALID.has(g.answer) && Array.isArray(g.guesses) && (!g.over || g.key === shared.id)) state = g;
+  if (g && /^[a-z]{5}$/.test(g.answer) && Array.isArray(g.guesses) && (!g.over || g.key === shared.id)) {
+    state = g; VALID.add(g.answer);
+  }
   else state = saved.played[shared.id] ? practiceState() : freshState(shared);
   render(); updateTag();
   const check = () => fetchShared().then(adoptShared);
