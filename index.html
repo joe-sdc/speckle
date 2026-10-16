@@ -175,7 +175,7 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
   position: relative;
 }
 .sheet h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--rim); text-wrap: balance; }
-.sheet h3 { margin: 0; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.sheet h3 { margin: 8px 0 -4px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
 .sheet p { margin: 0; line-height: 1.5; }
 .close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; }
 .example { display: grid; grid-template-columns: repeat(5, 40px); gap: 5px; }
@@ -249,7 +249,19 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
       <div class="example"><div class="tile">T</div><div class="tile">E</div><div class="tile">L</div><div class="tile miss">L</div><div class="tile">Y</div></div>
       <p><b>Slate</b>: there is no second L in the word.</p>
     </div>
-    <p>Type on your keyboard or tap the keys. Each guess must be a real word.</p>
+    <p>Type on your keyboard or tap the keys. Each guess must be a real word, or a name from the current Speckle Special.</p>
+
+    <h3>Everyone gets the same word</h3>
+    <p>Everyone playing Speckle is given the same word, so you can compare results with friends. Usually it's <b>today's word</b>, which changes at midnight UK time. Sometimes a <b>shared word</b> is set for a few hours or days instead, and the line under the Speckle title shows when it ends.</p>
+
+    <h3>Practice words</h3>
+    <p>Finished the word everyone's playing? Open the stats panel and press <b>Practice word</b> to keep going with a random word. Play as many as you like.</p>
+    <p>Practice games don't count towards your stats or streak. While you're on one, the line under the title says <b>Practice word</b>. If a new shared word goes live in the meantime, Speckle switches you to it as soon as your current game ends.</p>
+
+    <h3>Speckle Specials</h3>
+    <p>Now and then Speckle runs a <b>Special</b>: a themed word list for an occasion. The first is the <b>Dickens Special</b>, full of characters and places from his novels.</p>
+    <p>While a Special is on, its name shows under the title, and today's word and practice words come from it. Names count as guesses even though they're not in the dictionary, so <b>FAGIN</b> and <b>QUILP</b> are fair game. After each game, a note tells you who or what the word was.</p>
+
     <div class="toggle">
       <label for="hcToggle">High-contrast colours<small>Orange and blue instead of green and mustard</small></label>
       <input type="checkbox" id="hcToggle">
