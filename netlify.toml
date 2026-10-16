@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Cache-Control = "no-cache"

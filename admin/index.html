@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Speckle Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root {
+  --bg: #eef2f6; --surface: #f8fafc; --ink: #18253d; --muted: #5d6b82; --rim: #1f3f73;
+  --line: #c3cddb; --hit: #2e8452; --near: #c9951a; --bad: #b3261e; --on-state: #fff;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111a2b; --surface: #18233a; --ink: #e7edf6; --muted: #9aa8bf; --rim: #7da2e0;
+    --line: #34425e; --hit: #3a9a63; --near: #d3a22c; --bad: #f2877f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111a2b; --surface: #18233a; --ink: #e7edf6; --muted: #9aa8bf; --rim: #7da2e0;
+  --line: #34425e; --hit: #3a9a63; --near: #d3a22c; --bad: #f2877f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--font-body); }
+main {
+  max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; border-bottom: 2px solid var(--rim); padding-bottom: 8px; flex-wrap: wrap; }
+h1 { margin: 0; font: 800 1.8rem/1 var(--font-display); letter-spacing: -0.02em; color: var(--rim); }
+h1 span { font: 700 0.72rem var(--font-body); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-left: 8px; }
+a { color: var(--rim); font-weight: 700; }
+section { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+h2 { margin: 0; font: 800 1.15rem var(--font-display); color: var(--rim); }
+label { font-weight: 700; display: block; margin-bottom: 4px; }
+input, select, button { font: inherit; }
+input, select {
+  width: 100%; min-height: 46px; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--line);
+  background: var(--bg); color: var(--ink);
+}
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
+#word { text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.row > * { flex: 1 1 140px; min-width: 0; }
+.row > .fixed { flex: 0 0 auto; }
+.btn { min-height: 46px; padding: 8px 16px; border-radius: 10px; border: 2px solid var(--rim); background: var(--surface); color: var(--rim); font-weight: 700; cursor: pointer; }
+.btn.primary { background: var(--rim); color: var(--surface); }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.hint { margin: 0; color: var(--muted); font-size: 0.92rem; min-height: 1.4em; }
+.hint.err { color: var(--bad); font-weight: 700; }
+.hint.ok { color: var(--hit); font-weight: 700; }
+.tiles { display: flex; gap: 6px; }
+.tile {
+  width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center;
+  font: 800 1.5rem var(--font-display); text-transform: uppercase; background: var(--hit); color: var(--on-state);
+}
+.tile.daily { background: var(--near); }
+.stat { display: flex; flex-direction: column; gap: 10px; }
+.stat p { margin: 0; }
+.big { font: 800 1.4rem var(--font-display); font-variant-numeric: tabular-nums; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Speckle<span>Admin</span></h1>
+    <a href="../">Open the game</a>
+  </header>
+
+  <section id="login">
+    <h2>Sign in</h2>
+    <form id="loginForm" class="row" autocomplete="off">
+      <div>
+        <label for="pw">Admin password</label>
+        <input id="pw" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn primary fixed" type="submit" id="loginBtn">Sign in</button>
+    </form>
+    <p class="hint" id="loginMsg" role="status"></p>
+  </section>
+
+  <div id="panel" hidden style="display:contents">
+    <section>
+      <h2>Right now</h2>
+      <div class="stat" id="status"></div>
+      <button class="btn danger" id="clearBtn" hidden>End early and go back to the daily word</button>
+    </section>
+
+    <section>
+      <h2>Set a shared word</h2>
+      <p class="hint">Everyone who opens Speckle gets this word, starting now. A player partway through another word finishes that one first.</p>
+      <form id="setForm" autocomplete="off">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="row">
+            <div>
+              <label for="word">Word</label>
+              <input id="word" list="answers" maxlength="5" spellcheck="false" autocapitalize="off" placeholder="five letters" required>
+              <datalist id="answers"></datalist>
+            </div>
+            <button class="btn fixed" type="button" id="randomBtn">Pick one at random</button>
+          </div>
+          <p class="hint" id="wordHint" role="status">Type any word from the Speckle list, or choose from the suggestions.</p>
+          <div class="row">
+            <div>
+              <label for="period">How long</label>
+              <select id="period">
+                <option value="0.25">15 minutes</option>
+                <option value="0.5">30 minutes</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hours</option>
+                <option value="5" selected>5 hours</option>
+                <option value="12">12 hours</option>
+                <option value="24">1 day (24 hours)</option>
+                <option value="48">2 days</option>
+                <option value="72">3 days</option>
+                <option value="168">1 week</option>
+                <option value="custom">Custom…</option>
+              </select>
+            </div>
+            <div id="customWrap" hidden>
+              <label for="custom">Hours</label>
+              <input id="custom" type="number" min="0.25" max="720" step="0.25" inputmode="decimal" value="3">
+            </div>
+          </div>
+          <p class="hint" id="endsHint"></p>
+          <button class="btn primary" type="submit" id="setBtn">Set shared word</button>
+          <p class="hint" id="setMsg" role="status"></p>
+        </div>
+      </form>
+    </section>
+
+    <section>
+      <h2>Otherwise</h2>
+      <p class="hint">When no shared word is active, everyone gets the daily word. It changes at midnight UK time.</p>
+      <div class="tiles" id="dailyTiles" aria-label="Today's daily word"></div>
+    </section>
+  </div>
+</main>
+
+<script src="../words.js"></script>
+<script>
+const W = SPECKLE_WORDS;
+const $ = id => document.getElementById(id);
+let pw = "";
+try { pw = sessionStorage.getItem("speckle-admin-pw") || ""; } catch (e) {}
+const valid = new Set();
+for (let i = 0; i < W.valid.length; i += 5) valid.add(W.valid.slice(i, i + 5));
+const answers = Object.keys(W.answers).sort();
+
+$("answers").innerHTML = answers.map(w => `<option value="${w}">${W.answers[w] || ""}</option>`).join("");
+const tilesFor = (word, cls) => [...word].map(c => `<div class="tile ${cls || ""}">${c}</div>`).join("");
+$("dailyTiles").innerHTML = tilesFor(W.dailyShared().word, "daily");
+
+async function api(method, body) {
+  const res = await fetch("/api/settings", {
+    method, cache: "no-store",
+    headers: Object.assign({ Authorization: "Bearer " + pw }, body ? { "Content-Type": "application/json" } : {}),
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  return { status: res.status, data };
+}
+
+function fmt(ms) {
+  return new Date(ms).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+function left(ms) {
+  const m = Math.max(0, Math.round(ms / 60000));
+  const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+  return [d && d + " d", (h || d) && h + " h", mm + " min"].filter(Boolean).join(" ");
+}
+
+let current = null;
+function renderStatus() {
+  const el = $("status");
+  if (current && current.active && current.end > Date.now()) {
+    el.innerHTML = `<div class="tiles">${tilesFor(current.word)}</div>
+      <p class="big">${left(current.end - Date.now())} left</p>
+      <p class="hint">Shared word since ${fmt(current.start)}. Ends ${fmt(current.end)}.</p>`;
+    $("clearBtn").hidden = false;
+  } else {
+    el.innerHTML = `<p class="big">No shared word is set</p><p class="hint">Players are getting the daily word.</p>`;
+    $("clearBtn").hidden = true;
+  }
+}
+async function refresh() {
+  const r = await api("GET");
+  if (r.status === 200) { current = r.data; renderStatus(); }
+}
+setInterval(renderStatus, 30000);
+
+function showPanel() { $("login").hidden = true; $("panel").hidden = false; }
+
+async function signIn(silent) {
+  $("loginBtn").disabled = true;
+  let r;
+  try { r = await api("GET"); } catch (e) { r = { status: 0, data: {} }; }
+  $("loginBtn").disabled = false;
+  const msg = $("loginMsg");
+  if (r.status === 200) {
+    try { sessionStorage.setItem("speckle-admin-pw", pw); } catch (e) {}
+    current = r.data; renderStatus(); showPanel(); return;
+  }
+  if (silent) return;
+  msg.className = "hint err";
+  if (r.status === 401) msg.textContent = "That password is not right.";
+  else if (r.status === 503) msg.textContent = "No admin password has been set yet. Add ADMIN_PASSWORD in the Netlify site's environment variables, then redeploy.";
+  else msg.textContent = "Could not reach the settings service. The admin area only works on the Netlify version of Speckle.";
+}
+$("loginForm").addEventListener("submit", e => { e.preventDefault(); pw = $("pw").value; signIn(false); });
+if (pw) signIn(true);
+
+/* Word picking */
+function checkWord() {
+  const w = $("word").value.trim().toLowerCase();
+  const hint = $("wordHint");
+  hint.className = "hint";
+  if (!w) { hint.textContent = "Type any word from the Speckle list, or choose from the suggestions."; return false; }
+  if (!/^[a-z]{5}$/.test(w)) { hint.textContent = "Needs exactly five letters."; return false; }
+  if (!valid.has(w)) { hint.className = "hint err"; hint.textContent = "That word is not in the Speckle word list."; return false; }
+  hint.className = "hint ok";
+  hint.textContent = W.answers[w] ? `In the list. ${W.answers[w]}` : "In the list.";
+  return true;
+}
+$("word").addEventListener("input", checkWord);
+$("randomBtn").addEventListener("click", () => {
+  $("word").value = answers[Math.floor(Math.random() * answers.length)];
+  checkWord();
+});
+
+/* Length */
+function hours() { return $("period").value === "custom" ? Number($("custom").value) : Number($("period").value); }
+function updateEnds() {
+  $("customWrap").hidden = $("period").value !== "custom";
+  const h = hours();
+  $("endsHint").textContent = h >= 0.25 && h <= 720 ? `Would end ${fmt(Date.now() + h * 3600000)}.` : "Choose between 15 minutes and 720 hours.";
+}
+$("period").addEventListener("change", updateEnds);
+$("custom").addEventListener("input", updateEnds);
+updateEnds(); setInterval(updateEnds, 30000);
+
+function say(text, cls) { const m = $("setMsg"); m.textContent = text; m.className = "hint " + (cls || ""); }
+
+$("setForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!checkWord()) { say("Pick a word from the list first.", "err"); return; }
+  const h = hours();
+  if (!(h >= 0.25 && h <= 720)) { say("Choose between 15 minutes and 720 hours.", "err"); return; }
+  $("setBtn").disabled = true;
+  const r = await api("POST", { word: $("word").value.trim().toLowerCase(), hours: h });
+  $("setBtn").disabled = false;
+  if (r.status === 200) { say("Done. Everyone now gets " + r.data.word.toUpperCase() + ".", "ok"); current = r.data; renderStatus(); }
+  else if (r.status === 401) { say("Your session has expired. Reload the page and sign in again.", "err"); }
+  else say(r.data.error || "Something went wrong. Try again.", "err");
+});
+
+$("clearBtn").addEventListener("click", async () => {
+  $("clearBtn").disabled = true;
+  const r = await api("POST", { clear: true });
+  $("clearBtn").disabled = false;
+  if (r.status === 200) { current = r.data; renderStatus(); say("The shared word has ended. Players now get the daily word.", "ok"); }
+  else say(r.data.error || "Something went wrong. Try again.", "err");
+});
+</script>
+</body>
+</html>
