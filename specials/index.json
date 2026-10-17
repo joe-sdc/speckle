@@ -5,5 +5,12 @@
   "name": "Dickens Special",
   "description": "Characters and places from the novels of Charles Dickens.",
   "count": 60
+ },
+ {
+  "file": "arty-party.json",
+  "id": "arty-party",
+  "name": "Arty Party",
+  "description": "Painters, sculptors, materials and the British art world.",
+  "count": 64
  }
 ]
