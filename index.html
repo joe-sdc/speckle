@@ -203,6 +203,8 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
   border: 2px solid var(--rim); background: var(--surface); color: var(--rim);
 }
 .btn.primary { background: var(--rim); color: var(--surface); }
+.btn.share { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.share svg { width: 20px; height: 20px; flex: none; }
 .toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
 .toggle label { font-weight: 700; }
 .toggle small { display: block; color: var(--muted); font-weight: 400; }
@@ -283,8 +285,8 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
     <h3>Guesses needed</h3>
     <div class="dist" id="dist"></div>
     <div class="actions">
-      <button class="btn" id="shareBtn" hidden>Copy result</button>
-      <button class="btn primary" id="newBtn">New word</button>
+      <button class="btn primary share" id="shareBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>Share results</button>
+      <button class="btn" id="newBtn">New word</button>
     </div>
   </div>
 </div>
@@ -607,13 +609,29 @@ document.getElementById("newBtn").addEventListener("click", () => {
   persist(); closeModals(); render(); updateTag();
 });
 
-document.getElementById("shareBtn").addEventListener("click", () => {
-  const sq = { hit: document.documentElement.classList.contains("hc") ? "🟧" : "🟩", near: document.documentElement.classList.contains("hc") ? "🟦" : "🟨", miss: "⬜" };
+function resultText() {
+  const hcOn = document.documentElement.classList.contains("hc");
+  const sq = { hit: hcOn ? "🟧" : "🟩", near: hcOn ? "🟦" : "🟨", miss: "⬜" };
   const lines = state.guesses.map(g => score(g, state.answer).map(m => sq[m]).join(""));
-  const text = `Speckle ${state.won ? state.guesses.length : "X"}/5\n${lines.join("\n")}`;
-  try {
-    navigator.clipboard.writeText(text).then(() => toast("Copied to clipboard"), () => toast("Copying isn't allowed here"));
-  } catch (e) { toast("Copying isn't allowed here"); }
+  let label = "Speckle";
+  if (LIST.name) label += " · " + LIST.name;
+  if (state.practice) label += " · practice";
+  else if (state.key && state.key.startsWith("daily-")) label += " · " + new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const link = /^https?:$/.test(location.protocol) ? "\n" + location.origin + "/" : "";
+  return `${label} ${state.won ? state.guesses.length : "X"}/5\n\n${lines.join("\n")}${link}`;
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast("Results copied. Paste them anywhere."); }
+  catch (e) { toast("Sharing isn't available on this browser"); }
+}
+/* Opens the phone's own share sheet (Messages, WhatsApp, AirDrop, Copy…); copies on browsers without one */
+document.getElementById("shareBtn").addEventListener("click", async () => {
+  const text = resultText();
+  if (navigator.share) {
+    try { await navigator.share({ text }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }   // closed the share sheet
+  }
+  copyText(text);
 });
 
 /* High contrast */
