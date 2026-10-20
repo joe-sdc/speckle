@@ -74,6 +74,19 @@ input:focus-visible, select:focus-visible, button:focus-visible, textarea:focus-
 .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: var(--hit); color: var(--on-state); vertical-align: middle; }
 .pill.muted { background: var(--soft); color: var(--muted); }
 
+/* No-index switch */
+.switchrow { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.switchrow > div { flex: 1 1 260px; min-width: 0; }
+.switch { display: inline-flex; align-items: center; gap: 10px; margin: 0; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch .track { width: 52px; height: 30px; border-radius: 99px; background: var(--line); position: relative; transition: background 0.15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); transition: transform 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.switch input:checked + .track { background: var(--hit); }
+.switch input:checked + .track::after { transform: translateX(22px); }
+.switch input:focus-visible + .track { outline: 3px solid var(--near); outline-offset: 2px; }
+.switch input:disabled + .track { opacity: 0.5; }
+.switch .state { font-weight: 700; min-width: 2.2em; }
+
 /* List tabs */
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
 .tab {
@@ -159,6 +172,27 @@ details > div { display: flex; flex-direction: column; gap: 12px; margin-top: 12
       <h2>Right now</h2>
       <div class="stat" id="status"></div>
       <button class="btn danger" id="clearBtn" hidden>End early and go back to the daily word</button>
+    </section>
+
+    <section id="seoSection">
+      <h2>Search engines</h2>
+      <div class="switchrow">
+        <div>
+          <label for="noindex" style="margin:0">No-index</label>
+          <p class="hint" id="seoText">Checking…</p>
+        </div>
+        <label class="switch" for="noindex">
+          <input id="noindex" type="checkbox" role="switch" disabled>
+          <span class="track" aria-hidden="true"></span>
+          <span class="state" id="seoState">…</span>
+        </label>
+      </div>
+      <div id="seoConfirm" class="row" hidden>
+        <p class="hint" style="flex:1 1 220px">Search engines will be allowed to find and list Speckle. Are you sure?</p>
+        <button class="btn small primary fixed" type="button" id="seoYes">Yes, allow listing</button>
+        <button class="btn small fixed" type="button" id="seoNo">Keep it hidden</button>
+      </div>
+      <p class="msg" id="seoMsg" role="status"></p>
     </section>
 
     <section id="setSection">
@@ -373,7 +407,7 @@ async function signIn(silent) {
     try { sessionStorage.setItem("speckle-admin-pw", pw); } catch (e) {}
     current = r.data; lists = l.data;
     $("login").hidden = true; $("panel").hidden = false;
-    renderStatus(); selectList(lists.active || "main"); loadReady();
+    renderStatus(); selectList(lists.active || "main"); loadReady(); loadSeo();
     return;
   }
   if (silent) return;
@@ -383,6 +417,36 @@ async function signIn(silent) {
 }
 $("loginForm").addEventListener("submit", e => { e.preventDefault(); pw = $("pw").value; signIn(false); });
 if (pw) signIn(true);
+
+/* ---------- No-index ---------- */
+let noindex = true;
+function showSeo() {
+  $("noindex").checked = noindex;
+  $("noindex").disabled = false;
+  $("seoState").textContent = noindex ? "On" : "Off";
+  $("seoText").textContent = noindex
+    ? "On: every page asks search engines not to list Speckle. Anyone with the link can still play."
+    : "Off: search engines can find and list Speckle.";
+}
+async function loadSeo() {
+  const r = await api("GET", "/api/seo");
+  if (r.status === 200) { noindex = r.data.noindex !== false; showSeo(); }
+  else { $("seoText").textContent = "Could not read the setting. Reload the page."; $("seoMsg").textContent = ""; }
+}
+async function saveSeo(value) {
+  $("noindex").disabled = true;
+  const r = await api("POST", "/api/seo", { noindex: value });
+  if (r.status === 200) {
+    noindex = r.data.noindex; showSeo();
+    say("seoMsg", noindex ? "No-index is on. It reaches the whole site within a minute." : "No-index is off. Search engines may now list Speckle.", "ok");
+  } else { showSeo(); say("seoMsg", r.data.error || "Could not save. Try again.", "err"); }
+}
+$("noindex").addEventListener("change", () => {
+  if ($("noindex").checked) { $("seoConfirm").hidden = true; saveSeo(true); }
+  else { $("noindex").checked = true; $("seoConfirm").hidden = false; say("seoMsg", ""); }
+});
+$("seoYes").addEventListener("click", () => { $("seoConfirm").hidden = true; saveSeo(false); });
+$("seoNo").addEventListener("click", () => { $("seoConfirm").hidden = true; });
 
 /* ---------- Shared word ---------- */
 function checkWord() {

@@ -26,4 +26,14 @@ To add another ready-made special, put a JSON file in `specials/` in the same sh
 - `words.js`: word lists and the daily-word rule, used by the game and the admin page
 - `admin/index.html`: the admin page
 - `specials/`: ready-made Speckle Specials
-- `netlify/functions/settings.mts`: stores the shared word and word lists (`/api/settings`, `/api/list`, `/api/admin/lists`)
+- `netlify/functions/settings.mts`: stores the shared word and word lists (`/api/settings`, `/api/list`, `/api/seo`, `/api/admin/lists`)
+- `netlify/edge-functions/noindex.ts`: adds the no-index header and meta tag to every page when the admin switch is on
+
+## Hiding Speckle from search engines
+
+In the admin area, the **Search engines** switch controls the no-index tag. It is **on by default**.
+
+- When on, every page and file on the site is sent with an `X-Robots-Tag: noindex, nofollow` header, and every HTML page also gets `<meta name="robots" content="noindex, nofollow">`.
+- A change reaches the whole site within about 30 seconds. If the setting cannot be read, the site stays hidden.
+- Do not add a `Disallow` rule to `robots.txt`: search engines have to fetch the pages to see the no-index tag.
+- The GitHub Pages copy is not covered by the switch. Turn Pages off in the repository settings if it should not be listed.

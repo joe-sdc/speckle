@@ -4,9 +4,11 @@ import { getStore } from "@netlify/blobs";
  * Public
  *   GET  /api/settings      The shared word if one is active, plus which word list is loaded.
  *   GET  /api/list          The loaded word list (words and notes), for the game.
+ *   GET  /api/seo           Whether the site asks search engines not to list it (default: yes).
  * Admin (Authorization: Bearer <ADMIN_PASSWORD>)
  *   GET  /api/settings      Also checks the password; adds start time and length.
  *   POST /api/settings      { word, hours } sets the shared word, { clear: true } ends it early.
+ *   POST /api/seo           { noindex: true | false } turns the no-index tag on or off.
  *   GET  /api/admin/lists   Every list: the main list (if edited) and all Speckle Specials.
  *   POST /api/admin/lists   { action: "save" | "create" | "delete" | "activate" | "resetMain", ... }
  *
@@ -120,6 +122,19 @@ async function settings(req: Request, auth: string) {
   return reply({ active: true, id: s.id, word, start, end: s.end, hours, now: Date.now() });
 }
 
+async function seo(req: Request, auth: string) {
+  if (req.method === "POST") {
+    if (auth !== "ok") return reply({ error: "Sign in as admin first." }, 401);
+    let body: { noindex?: unknown };
+    try { body = await req.json(); } catch { return reply({ error: "Send JSON." }, 400); }
+    if (typeof body.noindex !== "boolean") return reply({ error: "Send { noindex: true } or { noindex: false }." }, 400);
+    await store().setJSON("seo", { noindex: body.noindex, changed: Date.now() });
+    return reply({ noindex: body.noindex, changed: Date.now() });
+  }
+  const s = (await store().get("seo", { type: "json" })) as { noindex: boolean; changed?: number } | null;
+  return reply({ noindex: s ? s.noindex !== false : true, changed: s?.changed });
+}
+
 async function publicList() {
   const l = await readLists();
   const list = activeList(l);
@@ -181,6 +196,7 @@ export default async (req: Request) => {
   if (auth === "bad") return reply({ error: "Wrong password." }, 401);
 
   if (path === "/api/list") return publicList();
+  if (path === "/api/seo") return seo(req, auth);
   if (path === "/api/admin/lists") {
     if (auth !== "ok") return reply({ error: "Sign in as admin first." }, 401);
     return adminLists(req);
@@ -188,4 +204,4 @@ export default async (req: Request) => {
   return settings(req, auth);
 };
 
-export const config = { path: ["/api/settings", "/api/list", "/api/admin/lists"], method: ["GET", "POST"] };
+export const config = { path: ["/api/settings", "/api/list", "/api/seo", "/api/admin/lists"], method: ["GET", "POST"] };
