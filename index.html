@@ -619,8 +619,7 @@ function resultText() {
   if (LIST.name) label += " · " + LIST.name;
   if (state.practice) label += " · practice";
   else if (state.key && state.key.startsWith("daily-")) label += " · " + new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  const link = /^https?:$/.test(location.protocol) ? "\n" + location.origin + "/" : "";
-  return `${label} ${state.won ? state.guesses.length : "X"}/5\n\n${lines.join("\n")}${link}`;
+  return `${label} ${state.won ? state.guesses.length : "X"}/5\n\n${lines.join("\n")}`;
 }
 async function copyText(text) {
   try { await navigator.clipboard.writeText(text); toast("Results copied. Paste them anywhere."); }
