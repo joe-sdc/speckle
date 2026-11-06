@@ -11,7 +11,27 @@
     var dayNum = Math.floor(Date.UTC(p[0], p[1] - 1, p[2]) / 86400000);
     var list = Object.keys(words || ANSWERS).sort();
     var prefix = listId && listId !== "main" ? listId + "-" : "";
-    return { id: "daily-" + prefix + key, word: list[(dayNum * 7919) % list.length], kind: "daily" };
+    /* Each pass through the list is a fresh random shuffle (seeded, so everyone gets the same order),
+       so no word repeats until all of them have been used, and the order has no alphabetical pattern. */
+    var n = list.length, cycle = Math.floor(dayNum / n), slot = dayNum % n;
+    var rand = seeded(hash(prefix + "|" + n + "|" + cycle));
+    for (var i = n - 1; i > 0; i--) {
+      var j = Math.floor(rand() * (i + 1)), t = list[i]; list[i] = list[j]; list[j] = t;
+    }
+    return { id: "daily-" + prefix + key, word: list[slot], kind: "daily" };
+  }
+  function hash(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function seeded(a) {   // mulberry32
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
   window.SPECKLE_WORDS = { valid: VALID, answers: ANSWERS, dailyShared: dailyShared };
 })();
