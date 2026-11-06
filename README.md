@@ -37,3 +37,7 @@ In the admin area, the **Search engines** switch controls the no-index tag. It i
 - A change reaches the whole site within about 30 seconds. If the setting cannot be read, the site stays hidden.
 - Do not add a `Disallow` rule to `robots.txt`: search engines have to fetch the pages to see the no-index tag.
 - The GitHub Pages copy is not covered by the switch. Turn Pages off in the repository settings if it should not be listed.
+
+## Daily welcome
+
+The first time someone opens Speckle each UK day, a welcome pop-up shows the Speckle logo, the rules in three lines, and what's playing now: the word list (main list or the Special's name and description) and how long the current word lasts (until midnight UK time, or until a timed shared word ends). Pressing the button, pressing Enter, or just starting to type closes it.

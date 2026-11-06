@@ -212,8 +212,74 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
 .toggle small { display: block; color: var(--muted); font-weight: 400; }
 .toggle input { width: 22px; height: 22px; accent-color: var(--rim); }
 
+/* Daily welcome */
+:root { --band: #1f3f73; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --band: #233a66; } }
+:root[data-theme="dark"] { --band: #233a66; }
+.welcome { padding: 0; gap: 0; overflow-x: hidden; animation: rise 0.35s cubic-bezier(.2,.9,.3,1.2); }
+@keyframes rise { from { transform: translateY(24px) scale(0.97); opacity: 0; } }
+.welcome .close { color: #fff; border-color: rgba(255,255,255,0.7); background: transparent; z-index: 2; top: 8px; right: 8px; width: 32px; height: 32px; font-size: 0.85rem; }
+.w-band {
+  background-color: var(--band); background-image: var(--speck-light); background-size: 220px 220px;
+  padding: 44px 18px 20px; text-align: center; color: #fff;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.logo { display: grid; grid-template-columns: repeat(7, minmax(0, 42px)); gap: 5px; width: 100%; justify-content: center; }
+.logo .tile {
+  aspect-ratio: 1; font-size: clamp(1rem, 6.4vw, 1.55rem); border-radius: 24%;
+  box-shadow: inset 0 0 0 3px rgba(0,0,0,0.18), 0 3px 0 rgba(0,0,0,0.25);
+}
+.logo .tile.plain { background-color: #f8fafc; color: #18253d; background-image: var(--speck-dark); }
+.logo .tile:nth-child(even) { transform: rotate(-3deg); }
+.logo .tile:nth-child(3n) { transform: rotate(4deg); }
+.welcome .logo .tile { animation: drop 0.5s backwards cubic-bezier(.3,1.4,.5,1); }
+.logo .tile:nth-child(2) { animation-delay: 0.05s; } .logo .tile:nth-child(3) { animation-delay: 0.1s; }
+.logo .tile:nth-child(4) { animation-delay: 0.15s; } .logo .tile:nth-child(5) { animation-delay: 0.2s; }
+.logo .tile:nth-child(6) { animation-delay: 0.25s; } .logo .tile:nth-child(7) { animation-delay: 0.3s; }
+@keyframes drop { from { transform: translateY(-18px) rotate(-12deg); opacity: 0; } }
+.w-tagline { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.16em; opacity: 0.9; }
+.w-body { padding: 18px 20px 4px; display: flex; flex-direction: column; gap: 16px; }
+.w-actions {
+  position: sticky; bottom: 0; z-index: 1; background: var(--surface);
+  padding: 14px 20px 16px; display: flex; flex-direction: column; gap: 10px;
+}
+@media (max-height: 680px) {
+  .w-band { padding: 40px 14px 12px; gap: 8px; }
+  .logo { grid-template-columns: repeat(7, minmax(0, 34px)); }
+  .logo .tile { font-size: clamp(0.9rem, 5.4vw, 1.25rem); }
+  .w-body { padding-top: 14px; gap: 12px; }
+  .w-rules { gap: 7px; }
+  .w-rules li { font-size: 0.92rem; }
+  .w-actions { padding-top: 10px; }
+}
+@media (max-height: 600px) {
+  .w-tagline, .w-rules li:nth-child(3), .w-desc { display: none; }
+  .w-band { padding-bottom: 14px; }
+}
+.w-rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.w-rules li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; line-height: 1.4; }
+.w-num {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--key); color: var(--rim); font: 800 0.95rem var(--font-display);
+}
+.chip { display: inline-block; width: 0.95em; height: 0.95em; border-radius: 3px; vertical-align: -0.1em; margin-right: 3px; }
+.chip.hit { background: var(--hit); } .chip.near { background: var(--near); } .chip.miss { background: var(--miss); }
+.w-now {
+  border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  background-color: var(--bg); display: flex; flex-direction: column; gap: 4px;
+}
+.w-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); font-weight: 700; }
+.w-list { font: 800 1.25rem/1.2 var(--font-display); color: var(--rim); }
+.w-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
+.w-time { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 700; line-height: 1.35; }
+.w-time svg { width: 18px; height: 18px; flex: none; color: var(--rim); }
+.w-go { min-height: 54px; font-size: 1.1rem; width: 100%; flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.w-go svg { width: 20px; height: 20px; }
+.w-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+.linkish { background: none; border: 0; padding: 4px 0; color: var(--rim); font: 700 0.9rem var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
 @media (prefers-reduced-motion: reduce) {
-  .tile, .row, .key { animation: none !important; transition: none !important; }
+  .tile, .row, .key, .welcome { animation: none !important; transition: none !important; }
 }
 </style>
 
@@ -239,6 +305,36 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<div class="modal" id="welcomeModal" hidden>
+  <div class="sheet welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <button class="icon-btn close" data-close aria-label="Close">✕</button>
+    <div class="w-band">
+      <h2 id="welcomeTitle" class="logo" aria-label="Speckle"><span class="tile hit" aria-hidden="true">S</span><span class="tile plain" aria-hidden="true">P</span><span class="tile near" aria-hidden="true">E</span><span class="tile hit" aria-hidden="true">C</span><span class="tile miss" aria-hidden="true">K</span><span class="tile plain" aria-hidden="true">L</span><span class="tile near" aria-hidden="true">E</span></h2>
+      <p class="w-tagline">The British English word game</p>
+    </div>
+    <div class="w-body">
+      <ol class="w-rules">
+        <li><span class="w-num">1</span><span>Guess the hidden <b>five-letter word</b> in <b>five goes</b>.</span></li>
+        <li><span class="w-num">2</span><span>Tiles change colour: <span class="chip hit"></span>right place, <span class="chip near"></span>wrong place, <span class="chip miss"></span>not in the word.</span></li>
+        <li><span class="w-num">3</span><span>Everyone gets the <b>same word</b>, so you can compare with friends.</span></li>
+      </ol>
+      <div class="w-now">
+        <span class="w-label">Now playing</span>
+        <span class="w-list" id="wList"></span>
+        <span class="w-desc" id="wDesc"></span>
+        <span class="w-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="wTime"></span></span>
+      </div>
+    </div>
+    <div class="w-actions">
+      <button class="btn primary w-go" id="wGo" type="button"><span id="wGoText">Start playing</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <div class="w-foot">
+        <span>Or just start typing</span>
+        <button class="linkish" id="wRules" type="button">Full rules</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="modal" id="helpModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
@@ -335,7 +431,7 @@ function applyList(l) {
     LIST = { id: "main", name: null, version: null };
     ANSWERS = SPECKLE_WORDS.answers;
   } else {
-    LIST = { id: l.id, name: l.name, version: l.version };
+    LIST = { id: l.id, name: l.name, version: l.version, description: l.description || "" };
     ANSWERS = l.words;
     for (const w of Object.keys(l.words)) VALID.add(w);   // special words are always valid guesses
   }
@@ -404,8 +500,8 @@ function adoptShared(next) {
   if (state.key === next.id || saved.played[next.id]) return updateTag();
   if (state.over || (!state.guesses.length && !state.current)) {
     state = freshState(next); persist(); render(); updateTag();
-    toast("A new shared word is live", 2200);
-  } else {
+    if (welcomeModal.hidden) toast("A new shared word is live", 2200);
+  } else if (welcomeModal.hidden) {
     toast("A new shared word starts after this game", 2600);
   }
 }
@@ -567,12 +663,55 @@ function persist() { saved.game = state; save(saved); }
 /* Modals */
 const helpModal = document.getElementById("helpModal");
 const statsModal = document.getElementById("statsModal");
-function anyModalOpen() { return !helpModal.hidden || !statsModal.hidden; }
-function closeModals() { helpModal.hidden = true; statsModal.hidden = true; }
+const welcomeModal = document.getElementById("welcomeModal");
+function anyModalOpen() { return !helpModal.hidden || !statsModal.hidden || !welcomeModal.hidden; }
+function closeModals() { helpModal.hidden = true; statsModal.hidden = true; welcomeModal.hidden = true; }
 document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeModals));
-[helpModal, statsModal].forEach(m => m.addEventListener("click", e => { if (e.target === m) closeModals(); }));
+[helpModal, statsModal, welcomeModal].forEach(m => m.addEventListener("click", e => { if (e.target === m) closeModals(); }));
 document.getElementById("helpBtn").addEventListener("click", () => { helpModal.hidden = false; });
 document.getElementById("statsBtn").addEventListener("click", openStats);
+
+/* Daily welcome: shown on the first visit of each UK day */
+const UK_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" });
+function untilUkMidnight() {
+  const p = {};
+  new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "numeric", minute: "numeric", second: "numeric", hourCycle: "h23" })
+    .formatToParts(new Date()).forEach(x => (p[x.type] = +x.value));
+  return Math.max(60000, (86400 - (p.hour * 3600 + p.minute * 60 + p.second)) * 1000);
+}
+function span(ms) {
+  const m = Math.max(1, Math.round(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+  if (d) return d + (d === 1 ? " day" : " days") + (h ? " " + h + (h === 1 ? " hour" : " hours") : "");
+  if (h) return h + "h" + (mm ? " " + mm + "m" : "");
+  return mm + (mm === 1 ? " minute" : " minutes");
+}
+function fillWelcome() {
+  const n = ANSWER_LIST.length;
+  document.getElementById("wList").textContent = LIST.name || "Main word list";
+  document.getElementById("wDesc").textContent = LIST.name
+    ? (LIST.description || "A themed Speckle Special.") + " Names count as guesses."
+    : `${n} everyday British words, from cuppa to wolds.`;
+  let time;
+  if (shared.kind === "admin") {
+    const end = new Date(shared.end);
+    const when = (shared.end - Date.now() > 20 * 3600 * 1000 ? end.toLocaleDateString([], { weekday: "short" }) + " " : "") +
+      end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    time = `Shared word for a limited time: ends in ${span(shared.end - Date.now())} (${when})`;
+  } else {
+    time = `Today's word: a new one in ${span(untilUkMidnight())}`;
+  }
+  if (saved.played[shared.id]) time += ". You've played it, so it's practice words for now.";
+  document.getElementById("wTime").textContent = time;
+  document.getElementById("wGoText").textContent =
+    state.practice ? "Play a practice word" : (state.guesses.length && !state.over ? "Carry on playing" : "Start playing");
+}
+function openWelcome() {
+  fillWelcome(); welcomeModal.hidden = false;
+  saved.welcomeDay = UK_DAY.format(new Date()); save(saved);
+  setTimeout(() => document.getElementById("wGo").focus({ preventScroll: true }), 50);
+}
+document.getElementById("wGo").addEventListener("click", closeModals);
+document.getElementById("wRules").addEventListener("click", () => { welcomeModal.hidden = true; helpModal.hidden = false; });
 
 function openStats() {
   const s = saved.stats;
@@ -648,6 +787,7 @@ hc.addEventListener("change", () => {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && anyModalOpen()) return closeModals();
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!welcomeModal.hidden && /^[a-zA-Z]$/.test(e.key)) welcomeModal.hidden = true;   // typing starts the game
   if (anyModalOpen()) return;
   const k = e.key === "Enter" || e.key === "Backspace" ? e.key : e.key.toLowerCase();
   if (k === "Enter" || k === "Backspace" || /^[a-z]$/.test(k)) {
@@ -663,11 +803,11 @@ function start(data) {
   }
   else state = saved.played[shared.id] ? practiceState() : freshState(shared);
   render(); updateTag();
-  const check = () => fetchShared().then(adoptShared);
+  const check = () => fetchShared().then(next => { adoptShared(next); if (!welcomeModal.hidden) fillWelcome(); });
   check();
   setInterval(check, 60000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
-  if (!saved.seenHelp) { helpModal.hidden = false; saved.seenHelp = true; save(saved); }
+  if (saved.welcomeDay !== UK_DAY.format(new Date())) openWelcome();
 }
 window.claude?.hot?.snapshot?.(() => ({ game: state }));
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

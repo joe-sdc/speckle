@@ -64,10 +64,10 @@ async function writeLists(l: Lists) {
 }
 
 /* The loaded list, or null when the game should use its built-in main list. */
-function activeList(l: Lists): { id: string; name: string | null; words: Words } | null {
+function activeList(l: Lists): { id: string; name: string | null; description?: string; words: Words } | null {
   if (l.active !== "main" && l.specials[l.active]) {
     const s = l.specials[l.active];
-    return { id: l.active, name: s.name, words: s.words };
+    return { id: l.active, name: s.name, description: s.description || "", words: s.words };
   }
   return l.main ? { id: "main", name: null, words: l.main.words } : null;
 }
