@@ -671,8 +671,7 @@ document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click
 document.getElementById("helpBtn").addEventListener("click", () => { helpModal.hidden = false; });
 document.getElementById("statsBtn").addEventListener("click", openStats);
 
-/* Daily welcome: shown on the first visit of each UK day */
-const UK_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" });
+/* Welcome pop-up: shown every time someone opens Speckle */
 function untilUkMidnight() {
   const p = {};
   new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "numeric", minute: "numeric", second: "numeric", hourCycle: "h23" })
@@ -707,7 +706,6 @@ function fillWelcome() {
 }
 function openWelcome() {
   fillWelcome(); welcomeModal.hidden = false;
-  saved.welcomeDay = UK_DAY.format(new Date()); save(saved);
   setTimeout(() => document.getElementById("wGo").focus({ preventScroll: true }), 50);
 }
 document.getElementById("wGo").addEventListener("click", closeModals);
@@ -807,7 +805,7 @@ function start(data) {
   check();
   setInterval(check, 60000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
-  if (saved.welcomeDay !== UK_DAY.format(new Date())) openWelcome();
+  openWelcome();   // on every visit
 }
 window.claude?.hot?.snapshot?.(() => ({ game: state }));
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
