@@ -373,7 +373,7 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
     <p>Practice games don't count towards your stats or streak. While you're on one, the line under the title says <b>Practice word</b>. If a new shared word goes live in the meantime, Speckle switches you to it as soon as your current game ends.</p>
 
     <h3>Speckle Specials</h3>
-    <p>Now and then Speckle runs a <b>Special</b>: a themed word list for an occasion. The first is the <b>Dickens Special</b>, full of characters and places from his novels.</p>
+    <p>Most of the time the words come from <b>The Best of British</b>, Speckle's main list. Now and then Speckle runs a <b>Special</b>: a themed word list for an occasion. The first is the <b>Dickens Special</b>, full of characters and places from his novels.</p>
     <p>While a Special is on, its name shows under the title, and today's word and practice words come from it. Names count as guesses even though they're not in the dictionary, so <b>FAGIN</b> and <b>QUILP</b> are fair game. After each game, a note tells you who or what the word was.</p>
 
     <div class="toggle">
@@ -440,6 +440,7 @@ saved.stats = saved.stats || { played: 0, won: 0, streak: 0, best: 0, dist: [0, 
 saved.recent = saved.recent || [];
 saved.played = saved.played || {};
 
+const MAIN_NAME = "The Best of British";   // the built-in word list's display name
 /* Word list: the main list, or a list the admin has loaded (an edited main list or a Speckle Special) */
 let LIST = { id: "main", name: null, version: null };
 function applyList(l) {
@@ -702,7 +703,7 @@ function span(ms) {
 }
 function fillWelcome() {
   const n = ANSWER_LIST.length;
-  document.getElementById("wList").textContent = LIST.name || "Main word list";
+  document.getElementById("wList").textContent = LIST.name || MAIN_NAME;
   document.getElementById("wDesc").textContent = LIST.name
     ? (LIST.description || "A themed Speckle Special.") + " Names count as guesses."
     : `${n} everyday British words, from cuppa to wolds.`;

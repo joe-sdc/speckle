@@ -16,7 +16,7 @@ Setup on Netlify:
 
 ## Word lists and Speckle Specials
 
-The admin area shows every word list. The main list can be searched and edited: add or remove words and change the note shown after each game. Speckle Specials are extra themed lists. You can add a ready-made one (the Dickens Special ships in `specials/`), upload or paste your own, or generate one from a book's text. Loading a list makes it the source of the daily word and practice words. Its words also become valid guesses, even names that aren't in the dictionary.
+The admin area shows every word list. The main list, **The Best of British**, can be searched and edited: add or remove words and change the note shown after each game. Speckle Specials are extra themed lists. You can add a ready-made one (the Dickens Special ships in `specials/`), upload or paste your own, or generate one from a book's text. Loading a list makes it the source of the daily word and practice words. Its words also become valid guesses, even names that aren't in the dictionary.
 
 To add another ready-made special, put a JSON file in `specials/` in the same shape as `dickens.json` and list it in `specials/index.json`.
 
@@ -45,4 +45,4 @@ In the admin area, the **Search engines** switch controls the no-index tag. It i
 
 ## Welcome pop-up
 
-Every time someone opens Speckle, a welcome pop-up shows the Speckle logo, the rules in three lines, and what's playing now: the word list (main list or the Special's name and description) and how long the current word lasts (until midnight UK time, or until a timed shared word ends). Pressing the button, pressing Enter, or just starting to type closes it.
+Every time someone opens Speckle, a welcome pop-up shows the Speckle logo, the rules in three lines, and what's playing now: the word list (The Best of British, or the Special's name and description) and how long the current word lasts (until midnight UK time, or until a timed shared word ends). Pressing the button, pressing Enter, or just starting to type closes it.

@@ -359,7 +359,7 @@ let draft = null;     // { id, name, description, words } being edited
 let dirty = false;
 
 function listById(id) {
-  if (id === "main") return { id: "main", name: "Main list", description: "", words: lists.main ? lists.main.words : W.answers, edited: !!lists.main };
+  if (id === "main") return { id: "main", name: "The Best of British", description: "", words: lists.main ? lists.main.words : W.answers, edited: !!lists.main };
   const s = lists.specials[id];
   return s ? { id, name: s.name, description: s.description || "", words: s.words, edited: true } : null;
 }
@@ -630,7 +630,7 @@ $("removeListBtn").addEventListener("click", async () => {
   const r = await api("POST", "/api/admin/lists", action);
   if (r.status !== 200) { say("listMsg", r.data.error || "Something went wrong. Try again.", "err"); return; }
   lists = r.data; selectList(selected === "main" ? "main" : (lists.active || "main")); renderStatus();
-  say("listMsg", action.action === "resetMain" ? "The main list is back to the original." : `Deleted ${name}.`, "ok");
+  say("listMsg", action.action === "resetMain" ? "The Best of British is back to its original words." : `Deleted ${name}.`, "ok");
 });
 
 /* ---------- Specials: create ---------- */

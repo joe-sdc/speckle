@@ -156,7 +156,7 @@ async function adminLists(req: Request) {
     case "save": {
       const words = cleanWords(body.words);
       if (typeof words === "string") return reply({ error: words }, 400);
-      if (id === "main") l.main = { name: "Main list", words };
+      if (id === "main") l.main = { name: "The Best of British", words };
       else if (l.specials[id]) l.specials[id] = { ...l.specials[id], name: name || l.specials[id].name, description, words };
       else return reply({ error: "That list no longer exists." }, 404);
       break;
