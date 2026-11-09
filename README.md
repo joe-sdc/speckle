@@ -20,9 +20,14 @@ The admin area shows every word list. The main list can be searched and edited: 
 
 To add another ready-made special, put a JSON file in `specials/` in the same shape as `dickens.json` and list it in `specials/index.json`.
 
+## Definitions on the results screen
+
+When a game ends, win or lose, the results panel shows the word with a short British English definition, its word type and one example sentence. These live in `definitions.json` as `{ "main": { "word": ["word type", "definition", "example"] } }`. Speckle Specials show their own note instead. A main-list word with no entry in `definitions.json` (for example, one added in the admin area) falls back to its note. The definition is not included in shared results, so sharing never gives the word away.
+
 ## Files
 
 - `index.html`: the game
+- `definitions.json`: dictionary definitions and example sentences for the main list
 - `words.js`: word lists and the daily-word rule, used by the game and the admin page
 - `admin/index.html`: the admin page
 - `specials/`: ready-made Speckle Specials

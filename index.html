@@ -186,8 +186,22 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
 .answer-word {
   display: flex; gap: 5px;
 }
-.answer-word .tile { width: 44px; height: 44px; font-size: 1.35rem; }
-.gloss { color: var(--muted); }
+.answer-word .tile { width: 38px; height: 38px; font-size: 1.15rem; }
+/* Results: the word, its dictionary definition, then Share */
+.result { display: flex; flex-direction: column; gap: 10px; }
+.result .share { width: 100%; flex: none; }
+.defn {
+  border-left: 4px solid var(--rim); border-radius: 4px 10px 10px 4px;
+  background: var(--bg); padding: 9px 12px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.defn p { margin: 0; line-height: 1.4; }
+.d-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.d-word { font: 800 1.1rem/1.1 var(--font-display); color: var(--rim); text-transform: lowercase; }
+.d-pos { font-size: 0.78rem; font-style: italic; color: var(--muted); }
+.d-def { font-size: 0.98rem; }
+.d-ex { font-size: 0.9rem; font-style: italic; color: var(--muted); }
+.d-ex::before { content: "\201C"; } .d-ex::after { content: "\201D"; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
 .stats b { display: block; font-family: var(--font-display); font-size: 1.7rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .stats span { font-size: 0.72rem; color: var(--muted); line-height: 1.2; display: block; }
@@ -373,17 +387,19 @@ button:focus-visible { outline: 3px solid var(--near); outline-offset: 2px; }
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
     <button class="icon-btn close" data-close aria-label="Close">✕</button>
     <h2 id="statsTitle">Statistics</h2>
-    <div id="result" hidden>
-      <div class="key-explain">
-        <div class="answer-word" id="answerWord"></div>
-        <p class="gloss" id="gloss"></p>
+    <div class="result" id="result" hidden>
+      <div class="answer-word" id="answerWord"></div>
+      <div class="defn" id="defn" hidden>
+        <p class="d-head"><b class="d-word" id="dWord"></b> <span class="d-pos" id="dPos"></span></p>
+        <p class="d-def" id="dDef"></p>
+        <p class="d-ex" id="dEx"></p>
       </div>
+      <button class="btn primary share" id="shareBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>Share results</button>
     </div>
     <div class="stats" id="statsGrid"></div>
     <h3>Guesses needed</h3>
     <div class="dist" id="dist"></div>
     <div class="actions">
-      <button class="btn primary share" id="shareBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>Share results</button>
       <button class="btn" id="newBtn">New word</button>
     </div>
   </div>
@@ -711,6 +727,28 @@ function openWelcome() {
 document.getElementById("wGo").addEventListener("click", closeModals);
 document.getElementById("wRules").addEventListener("click", () => { welcomeModal.hidden = true; helpModal.hidden = false; });
 
+/* Dictionary definitions (definitions.json): { main: { word: [word type, definition, example] } }.
+   Loaded in the background so it never slows the game down. Speckle Specials show their own notes. */
+let DEFS = null, defsLoading = null;
+function loadDefinitions() {
+  if (!defsLoading) defsLoading = fetch("definitions.json")
+    .then(r => (r.ok ? r.json() : {})).catch(() => ({}))
+    .then(d => { DEFS = d || {}; });
+  return defsLoading;
+}
+function showDefinition(word) {
+  const box = document.getElementById("defn");
+  const specialNote = LIST.id !== "main" && ANSWERS[word];
+  const entry = !specialNote && DEFS && DEFS.main && DEFS.main[word];
+  const note = specialNote || ANSWERS[word] || SPECKLE_WORDS.answers[word] || "";
+  document.getElementById("dWord").textContent = word;
+  document.getElementById("dPos").textContent = entry ? entry[0] : "";
+  document.getElementById("dDef").textContent = entry ? entry[1] : note;
+  const ex = document.getElementById("dEx");
+  ex.textContent = entry ? entry[2] : ""; ex.hidden = !entry;
+  box.hidden = !(entry || note);
+}
+
 function openStats() {
   const s = saved.stats;
   const pct = s.played ? Math.round((s.won / s.played) * 100) : 0;
@@ -731,9 +769,8 @@ function openStats() {
     document.getElementById("statsTitle").textContent = state.won ? `Got it in ${state.guesses.length}` : "Not this time";
     document.getElementById("answerWord").innerHTML = [...state.answer]
       .map(ch => `<div class="tile ${state.won ? "hit" : "miss"}">${ch}</div>`).join("");
-    const gloss = ANSWERS[state.answer] || SPECKLE_WORDS.answers[state.answer];
-    const gl = document.getElementById("gloss");
-    gl.textContent = gloss || ""; gl.hidden = !gloss;
+    showDefinition(state.answer);
+    if (!DEFS) loadDefinitions().then(() => { if (!statsModal.hidden && state.over) showDefinition(state.answer); });
   } else {
     document.getElementById("statsTitle").textContent = "Statistics";
   }
@@ -801,7 +838,8 @@ function start(data) {
   }
   else state = saved.played[shared.id] ? practiceState() : freshState(shared);
   render(); updateTag();
-  const check = () => fetchShared().then(next => { adoptShared(next); if (!welcomeModal.hidden) fillWelcome(); });
+  setTimeout(loadDefinitions, 1500);   // ready long before anyone finishes a game
+  const check =() => fetchShared().then(next => { adoptShared(next); if (!welcomeModal.hidden) fillWelcome(); });
   check();
   setInterval(check, 60000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
